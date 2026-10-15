@@ -1,0 +1,58 @@
+{
+  "queries": [
+    {
+      "id": "monthly_revenue",
+      "description": "Total revenue per month from delivered orders.",
+      "example_questions": ["What was our monthly revenue?", "Show sales by month", "How much did we make each month?"],
+      "sql": "SELECT strftime('%Y-%m', o.order_date) AS month, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue FROM orders o JOIN order_items oi ON oi.order_id = o.id WHERE o.status = 'delivered' GROUP BY month ORDER BY month;"
+    },
+    {
+      "id": "top_products_by_revenue",
+      "description": "Top 5 products ranked by revenue from delivered orders.",
+      "example_questions": ["What are our best selling products?", "Which products earn the most?", "Top 5 products by revenue"],
+      "sql": "SELECT p.name AS product, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue FROM order_items oi JOIN products p ON p.id = oi.product_id JOIN orders o ON o.id = oi.order_id WHERE o.status = 'delivered' GROUP BY p.id, p.name ORDER BY revenue DESC LIMIT 5;"
+    },
+    {
+      "id": "revenue_by_country",
+      "description": "Revenue from delivered orders grouped by customer country.",
+      "example_questions": ["Which country buys the most?", "Revenue by country", "Where are our customers located and how much do they spend?"],
+      "sql": "SELECT c.country, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue FROM orders o JOIN customers c ON c.id = o.customer_id JOIN order_items oi ON oi.order_id = o.id WHERE o.status = 'delivered' GROUP BY c.country ORDER BY revenue DESC;"
+    },
+    {
+      "id": "top_customers_by_spend",
+      "description": "Top 10 customers by total spend on delivered orders.",
+      "example_questions": ["Who are our best customers?", "Who spends the most?", "Top 10 customers by spending"],
+      "sql": "SELECT c.name AS customer, c.country, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS total_spend FROM customers c JOIN orders o ON o.customer_id = c.id JOIN order_items oi ON oi.order_id = o.id WHERE o.status = 'delivered' GROUP BY c.id, c.name, c.country ORDER BY total_spend DESC LIMIT 10;"
+    },
+    {
+      "id": "average_order_value",
+      "description": "Average value of a delivered order.",
+      "example_questions": ["What is the average order value?", "How much does a typical order cost?", "Average basket size in money"],
+      "sql": "SELECT ROUND(SUM(oi.quantity * oi.unit_price) / COUNT(DISTINCT o.id), 2) AS average_order_value FROM orders o JOIN order_items oi ON oi.order_id = o.id WHERE o.status = 'delivered';"
+    },
+    {
+      "id": "orders_by_status",
+      "description": "Number of orders in each status (delivered, shipped, cancelled).",
+      "example_questions": ["How many orders are delivered?", "How many orders were cancelled?", "Order status breakdown"],
+      "sql": "SELECT status, COUNT(*) AS order_count FROM orders GROUP BY status ORDER BY order_count DESC;"
+    },
+    {
+      "id": "category_sales",
+      "description": "Revenue and units sold per product category from delivered orders.",
+      "example_questions": ["Which category sells best?", "Sales by product category", "How many units did each category sell?"],
+      "sql": "SELECT p.category, SUM(oi.quantity) AS units_sold, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue FROM order_items oi JOIN products p ON p.id = oi.product_id JOIN orders o ON o.id = oi.order_id WHERE o.status = 'delivered' GROUP BY p.category ORDER BY revenue DESC;"
+    },
+    {
+      "id": "new_customers_by_year",
+      "description": "Number of customers who signed up in each year.",
+      "example_questions": ["How many new customers did we get each year?", "Customer signups by year", "Customer growth over time"],
+      "sql": "SELECT strftime('%Y', signup_date) AS signup_year, COUNT(*) AS new_customers FROM customers GROUP BY signup_year ORDER BY signup_year;"
+    },
+    {
+      "id": "product_catalog",
+      "description": "All products with their category and price, cheapest first within each category.",
+      "example_questions": ["What products do we sell?", "Show the product catalog", "What is the price of each item?"],
+      "sql": "SELECT category, name AS product, price FROM products ORDER BY category, price;"
+    }
+  ]
+}
